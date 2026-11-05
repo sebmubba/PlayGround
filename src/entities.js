@@ -139,9 +139,9 @@ export function createPlayer() {
   const guitarBody = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), new THREE.MeshStandardMaterial({ color: 0xb40d20, roughness: 0.28, metalness: 0.35 }));
   guitarBody.scale.set(0.7, 1, 0.18);
   guitar.add(guitarBody);
-  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.3, 0.08), new THREE.MeshStandardMaterial({ color: 0x241713, roughness: 0.66 }));
-  neck.position.y = 0.72;
-  guitar.add(neck);
+  const guitarNeck = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.3, 0.08), new THREE.MeshStandardMaterial({ color: 0x241713, roughness: 0.66 }));
+  guitarNeck.position.y = 0.72;
+  guitar.add(guitarNeck);
   const headstock = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.24, 0.09), new THREE.MeshStandardMaterial({ color: 0x1f1411 }));
   headstock.position.y = 1.44;
   guitar.add(headstock);

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#08090d" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <meta name="description" content="HAWKINS 1986 — a playable 3D open-world nightmare in the style of an 80s crime saga." />
   <title>HAWKINS 1986 — Hellfire Protocol</title>
 </head>
@@ -16,6 +17,7 @@
     <div id="scanlines" aria-hidden="true"></div>
     <div id="grain" aria-hidden="true"></div>
     <div id="chroma" aria-hidden="true"></div>
+    <div id="damageFlash" aria-hidden="true"></div>
 
     <div id="hud" class="is-hidden">
       <header class="brand-block">
@@ -146,7 +148,7 @@
     <div id="endScreen" class="end-screen is-hidden">
       <div class="end-inner win">
         <div class="end-kicker">CASE CLOSED · 05:47 AM</div>
-        <h2>HAWKINS<br><em>LIVES</em></h2>
+        <h2 id="endTitle">HAWKINS<br><em>LIVES</em></h2>
         <p id="endBlurb">The gates are sealed. For now.</p>
         <div class="end-stats">
           <span>RIFTS SEALED <b id="statRifts">4</b></span>

@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import {
-  TAU, clamp, seeded, makeCanvas, canvasTexture, textTexture, meshBox,
+  TAU, clamp, damp, seeded, makeCanvas, canvasTexture, textTexture, meshBox,
   setShadowBlob,
 } from './utils.js';
 
 export const CITY = {
-  spawn: { x: 12, z: 34 },
-  car: { x: 5, z: 31 },
+  spawn: { x: 6, z: 30 },
+  car: { x: 6, z: 38 },
   forestHills: { x: 146, z: 60 },
   lake: { x: -127, z: 156 },
   creel: { x: -70, z: -151 },
@@ -220,7 +220,6 @@ export function buildWorld(scene) {
   addRoad(55, 0, ROAD_WIDTHS.street, 260, 'street');
   addRoad(0, -60, 240, ROAD_WIDTHS.street, 'street');
   addRoad(0, 60, 500, ROAD_WIDTHS.street, 'street');
-  addRoad(0, -250, 0, 0, 'lane'); // sentinel, harmless
   addRoad(210, 60, 110, 9, 'lane');
   addRoad(-103, 158, 28, 9, 'lane');
   addRoad(-146, -28, 74, 9, 'lane');
@@ -438,6 +437,9 @@ export function buildWorld(scene) {
   }
 
   function addNeonLight(x, y, z, color, intensity = 8, distance = 26, flicker = false) {
+    // Emissive signs carry most of the neon look. Keep only the strongest
+    // practical lights so the scene stays fast on modest GPUs and phones.
+    if (intensity < 9.5) return null;
     const light = new THREE.PointLight(color, intensity, distance, 2);
     light.position.set(x, y, z);
     scene.add(light);
@@ -538,8 +540,8 @@ export function buildWorld(scene) {
   gable.position.y = 19.5;
   gable.scale.z = 0.8;
   creel.add(gable);
-  const tower = meshBox(8, 22, 8, creelWall, -9, 11, 7);
-  creel.add(tower);
+  const creelTower = meshBox(8, 22, 8, creelWall, -9, 11, 7);
+  creel.add(creelTower);
   const turret = new THREE.Mesh(new THREE.ConeGeometry(6.3, 10, 8), new THREE.MeshStandardMaterial({ color: 0x181516 }));
   turret.position.set(-9, 27, 7);
   creel.add(turret);
@@ -769,13 +771,13 @@ export function buildWorld(scene) {
   }
   for (let z = -220; z <= 220; z += 44) {
     if (Math.abs(z) < 15) continue;
-    addStreetlight(-12.5, z, true);
-    addStreetlight(12.5, z + 22, true);
+    addStreetlight(-12.5, z, false);
+    addStreetlight(12.5, z + 22, false);
   }
   for (let x = -220; x <= 220; x += 55) {
     if (Math.abs(x) < 17) continue;
-    addStreetlight(x + 12, -12.5, true);
-    addStreetlight(x - 12, 12.5, true);
+    addStreetlight(x + 12, -12.5, false);
+    addStreetlight(x - 12, 12.5, false);
   }
 
   /* ------------------------------------------------------------------ trees */
@@ -1090,6 +1092,7 @@ export function buildWorld(scene) {
       rift.group.scale.y = rift.group.scale.x;
       rift.group.scale.z = rift.group.scale.x;
       rift.group.visible = rift.group.scale.x > 0.05;
+      rift.light.visible = rift.group.scale.x > 0.8;
       rift.light.intensity = rift.active ? 22 + Math.sin(time * 2.3 + rift.phase) * 5 : 4;
       rift.portalMat.uniforms.hot.value.offsetHSL(0, 0, Math.sin(time * 0.7) * 0.006);
       if (rift.active) {

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#08090d" />
+  <meta name="description" content="HAWKINS 1986 — a playable 3D open-world nightmare in the style of an 80s crime saga." />
+  <title>HAWKINS 1986 — Hellfire Protocol</title>
+  <script type="module" crossorigin src="./assets/index-CSFedoik.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D7qqoe9s.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Hawkins 1986 game world"></canvas>
+
+    <div id="cinema-bars" aria-hidden="true"><span></span><span></span></div>
+    <div id="vignette" aria-hidden="true"></div>
+    <div id="scanlines" aria-hidden="true"></div>
+    <div id="grain" aria-hidden="true"></div>
+    <div id="chroma" aria-hidden="true"></div>
+    <div id="damageFlash" aria-hidden="true"></div>
+
+    <div id="hud" class="is-hidden">
+      <header class="brand-block">
+        <div class="brand-lockup">
+          <span class="brand-hawkins">HAWKINS</span>
+          <span class="brand-year">'86</span>
+        </div>
+        <div class="brand-sub"><span class="live-dot"></span> <span id="locationText">DOWNTOWN · 03:12 AM</span></div>
+      </header>
+
+      <div class="top-right-status">
+        <div class="signal"><span class="signal-bar"></span> SIGNAL <b id="signalText">UNSTABLE</b></div>
+        <div class="dimension"><span>DIMENSIONAL BLEED</span><div class="meter"><i id="breachFill"></i></div></div>
+        <button id="soundBtn" class="icon-btn" type="button" aria-label="Toggle sound">AUDIO ON</button>
+      </div>
+
+      <aside id="missionPanel" class="mission-panel">
+        <div class="case-line"><span id="caseNo">CASE 01 / 05</span><span class="case-rule"></span></div>
+        <div id="missionTitle" class="mission-title">THE FREAK</div>
+        <div id="missionDesc" class="mission-desc">Find Eddie at Forest Hills.</div>
+        <div class="mission-meta"><span class="objective-pip"></span><span id="missionDistance">145 M</span><span id="missionHint">FOLLOW THE MARKER</span></div>
+      </aside>
+
+      <div class="vitals">
+        <div class="vital-label"><span>VITALS</span><span id="healthText">100</span></div>
+        <div class="health-track"><i id="healthFill"></i><span class="health-ticks"></span></div>
+        <div class="stamina-track"><i id="staminaFill"></i></div>
+      </div>
+
+      <div id="minimapWrap" class="minimap-wrap">
+        <canvas id="minimap" width="220" height="220"></canvas>
+        <span class="map-n">N</span>
+        <span class="map-label">HAWKINS, IN</span>
+      </div>
+
+      <div id="interaction" class="interaction is-hidden"><kbd>E</kbd><span id="interactionText">GET IN</span></div>
+      <div id="dialogue" class="dialogue is-hidden" role="status">
+        <div class="portrait" id="portrait">E</div>
+        <div class="dialogue-copy"><span id="speaker">EDDIE</span><p id="line">...</p></div>
+        <span class="dialogue-skip">CLICK TO CONTINUE</span>
+      </div>
+
+      <div id="toasts" class="toasts" aria-live="polite"></div>
+
+      <div id="carHud" class="car-hud is-hidden">
+        <div class="speed-readout"><span id="speedValue">000</span><small>MPH</small></div>
+        <div class="gear-line"><span id="gearValue">D</span><span class="gear-rule"></span><span>HELLFIRE CHEVELLE</span></div>
+        <div class="nitro-track"><i id="nitroFill"></i></div>
+      </div>
+
+      <div class="control-strip" id="controlStrip">
+        <span><kbd>WASD</kbd> MOVE</span><span><kbd>E</kbd> DRIVE</span><span><kbd>F</kbd> BLAST</span><span><kbd>SHIFT</kbd> SPRINT / NITRO</span><span><kbd>V</kbd> SUMMON RIDE</span>
+      </div>
+
+      <div class="crosshair" id="crosshair" aria-hidden="true"><i></i><b></b></div>
+      <div id="bossBar" class="boss-bar is-hidden"><span>VECNA · THE ARCHLICH</span><div><i id="bossFill"></i></div></div>
+      <div id="itemCounter" class="item-counter"><span>MIXTAPES</span><b id="tapeCount">0 / 8</b></div>
+    </div>
+
+    <div id="qte" class="qte is-hidden" role="status" aria-live="assertive">
+      <div class="qte-kicker">REACTION EVENT · THE ARCHIVIST IS WATCHING</div>
+      <div class="qte-prompt" id="qtePrompt">DODGE</div>
+      <div class="qte-key" id="qteKey">SPACE</div>
+      <div class="qte-track"><i id="qteFill"></i></div>
+      <div class="qte-count" id="qteCount"></div>
+      <div class="qte-warn" id="qteWarn">DON'T MOVE</div>
+    </div>
+
+    <div id="chapter" class="chapter-card is-hidden">
+      <div class="chapter-number" id="chapterNo">ACT I</div>
+      <h2 id="chapterTitle">THE FREAK</h2>
+      <p id="chapterQuote">"Every town has a story. Hawkins has a wound."</p>
+      <div class="chapter-byline">THE ARCHIVIST</div>
+    </div>
+
+    <div id="choiceScreen" class="choice-screen is-hidden">
+      <div class="choice-frame">
+        <div class="choice-kicker">THE ARCHIVIST OFFERS A CHOICE</div>
+        <h2 id="choiceTitle">SAVE THE KIDS</h2>
+        <p id="choiceText">...</p>
+        <div class="choice-actions">
+          <button id="choiceA" type="button" data-choice="0"><span>1</span><b>TRUST EDDIE</b><small>Let the freak play his song.</small></button>
+          <button id="choiceB" type="button" data-choice="1"><span>2</span><b>BURN THE HIVE</b><small>No more music. No more mercy.</small></button>
+        </div>
+        <div class="choice-foot">THIS DECISION WILL BE REMEMBERED</div>
+      </div>
+    </div>
+
+    <section id="titleScreen" class="title-screen">
+      <div class="title-rail" aria-hidden="true"><span>HAWKINS, INDIANA</span><span>NOVEMBER 1986</span></div>
+      <div class="title-copy">
+        <div class="eyebrow"><i></i> A SMALL TOWN. A VERY BIG PROBLEM.</div>
+        <h1 class="game-title">
+          <span class="word">HAWKINS</span>
+          <span class="year">1986</span>
+        </h1>
+        <div class="title-rule"><span></span><b>HELLFIRE PROTOCOL</b><span></span></div>
+        <p class="title-blurb">The gates are open. Eddie's gone missing. The only way out of Hawkins is through the hive.<br><em>Steal the Chevelle. Close the rifts. Don't become dinner.</em></p>
+        <div class="title-actions">
+          <button id="startBtn" class="play-btn" type="button"><span class="play-icon">▶</span> PLAY</button>
+          <button id="titleSoundBtn" class="sound-btn" type="button">AUDIO OFF</button>
+        </div>
+        <div class="title-controls">
+          <span><kbd>WASD</kbd> MOVE / DRIVE</span>
+          <span><kbd>MOUSE</kbd> LOOK</span>
+          <span><kbd>F</kbd> PSIONIC BLAST</span>
+          <span><kbd>E</kbd> VEHICLE</span>
+        </div>
+        <div class="title-foot">FAN-MADE 3D SHORT · BUILT FOR THE BROWSER · HEADPHONES RECOMMENDED</div>
+      </div>
+      <div class="title-stamp">
+        <span>CLASSIFIED</span>
+        <b>HAWKINS NATIONAL LABORATORY</b>
+        <small>SUBJECT 011 · STATUS: MISSING</small>
+      </div>
+      <div class="title-vhs">▶ PLAY <span>SP</span> &nbsp; 03:12:44</div>
+    </section>
+
+    <div id="deathScreen" class="end-screen is-hidden">
+      <div class="end-inner">
+        <div class="end-kicker">SIGNAL LOST</div>
+        <h2>WASTED</h2>
+        <p>The Upside Down found you first.</p>
+        <div class="end-small">RETURNING TO HAWKINS...</div>
+      </div>
+    </div>
+
+    <div id="endScreen" class="end-screen is-hidden">
+      <div class="end-inner win">
+        <div class="end-kicker">CASE CLOSED · 05:47 AM</div>
+        <h2>HAWKINS<br><em>LIVES</em></h2>
+        <p id="endBlurb">The gates are sealed. For now.</p>
+        <div class="end-stats">
+          <span>RIFTS SEALED <b id="statRifts">4</b></span>
+          <span>HIVE LOSSES <b id="statKills">0</b></span>
+          <span>TIME IN HELL <b id="statTime">00:00</b></span>
+        </div>
+        <button id="restartBtn" class="play-btn" type="button">PLAY AGAIN</button>
+      </div>
+    </div>
+
+    <div id="touchUI" class="touch-ui is-hidden">
+      <div id="joystick" class="joystick"><span id="stickKnob"></span><i class="joy-label">MOVE</i></div>
+      <div class="touch-actions">
+        <button type="button" data-action="blast" class="touch-btn primary" aria-label="Blast">BLAST</button>
+        <button type="button" data-action="car" class="touch-btn" aria-label="Vehicle">CAR</button>
+        <button type="button" data-action="sprint" class="touch-btn small" aria-label="Sprint">RUN</button>
+      </div>
+    </div>
+
+    <div id="boot" class="boot"><div class="boot-mark">HNL</div><div class="boot-text">CALIBRATING THE HAWKINS FREQUENCY<span>...</span></div></div>
+  </div>
+</body>
+</html>
