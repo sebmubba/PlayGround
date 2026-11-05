@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050505" />
+  <title>THE HOLLOW CLOCK — A Hawkins Story</title>
+  <meta name="description" content="A cinematic interactive horror episode. Hawkins, 1986. The clock is counting down. Every choice is remembered." />
+  <script type="module" crossorigin src="./assets/index-CldS7LdH.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-nS36E6Y-.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="stage" aria-label="Game scene"></canvas>
+
+    <!-- atmosphere layers -->
+    <div class="grade-layer"></div>
+    <div class="scanlines"></div>
+    <div class="noise"></div>
+    <div class="letterbox letterbox-top"></div>
+    <div class="letterbox letterbox-bottom"></div>
+    <div id="damage"></div>
+    <div id="flash"></div>
+    <div id="fade" class="visible"></div>
+    <div id="fade-caption"></div>
+
+    <!-- in-game HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-left">
+        <div id="hud-chapter">CHAPTER I</div>
+        <div id="hud-objective">Find Dana.</div>
+      </div>
+      <div class="hud-right">
+        <div id="hud-time" class="clock-readout"><span class="clock-dot"></span>3:06 AM</div>
+        <div id="hud-signal" title="Signal strength">
+          <i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- subtitles -->
+    <div id="subtitles" class="hidden">
+      <div id="speaker"></div>
+      <div id="line"></div>
+      <div id="advance-hint"><span>SPACE</span> CONTINUE</div>
+    </div>
+
+    <!-- timed decisions -->
+    <div id="choices" class="hidden">
+      <div class="choice-head">
+        <span class="choice-kicker">DECIDE</span>
+        <div class="choice-timer"><i id="choice-timer-fill"></i></div>
+      </div>
+      <div id="choice-prompt"></div>
+      <div id="choice-list"></div>
+    </div>
+
+    <!-- quick time events -->
+    <div id="qte" class="hidden">
+      <div id="qte-prompt"></div>
+      <div id="qte-ring" class="qte-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle id="ring-progress" class="ring-fg" cx="60" cy="60" r="52"></circle>
+        </svg>
+        <div id="qte-key" class="keycap">E</div>
+      </div>
+      <div id="qte-hint"></div>
+    </div>
+
+    <!-- exploration -->
+    <div id="explore" class="hidden">
+      <div id="reticle"></div>
+      <div id="hotspot-label"></div>
+      <div id="explore-counter"></div>
+      <div id="explore-help">MOVE THE CURSOR — CLICK TO INSPECT</div>
+    </div>
+    <div id="inspect" class="hidden">
+      <div class="inspect-rule"></div>
+      <div class="inspect-kicker">FOUND</div>
+      <h3 id="inspect-title"></h3>
+      <p id="inspect-text"></p>
+      <div class="inspect-foot"><span id="inspect-count"></span><span>CLICK TO CLOSE</span></div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- chapter card -->
+    <div id="chapter-card" class="hidden">
+      <div class="chapter-rule"></div>
+      <div id="chapter-numeral">I</div>
+      <div id="chapter-title">THE HOUSE ON MAPLE STREET</div>
+      <div id="chapter-sub">HAWKINS, INDIANA — MARCH 21, 1986</div>
+      <div class="chapter-rule"></div>
+    </div>
+
+    <!-- title -->
+    <section id="title-screen" class="screen">
+      <div class="title-grain"></div>
+      <div class="title-wrap">
+        <div class="title-eyebrow"><span></span> AN INTERACTIVE HORROR EPISODE <span></span></div>
+        <h1 class="game-title"><span>THE</span>HOLLOW<span>CLOCK</span></h1>
+        <div class="title-tagline">Hawkins, Indiana. March 1986.<br />The clock is counting down.</div>
+        <nav class="title-menu">
+          <button id="btn-begin" class="menu-item primary"><em>01</em><span>BEGIN</span></button>
+          <button id="btn-continue" class="menu-item hidden"><em>02</em><span>CONTINUE</span></button>
+          <button id="btn-chapters" class="menu-item"><em>0<span class="dyn">3</span></em><span>CHAPTERS</span></button>
+          <button id="btn-settings" class="menu-item"><em>0<span class="dyn">4</span></em><span>SETTINGS</span></button>
+        </nav>
+        <div class="title-foot">
+          <span>HEADPHONES RECOMMENDED</span>
+          <span class="warn">CONTAINS FLASHING IMAGES</span>
+          <span>DESKTOP / KEYBOARD</span>
+        </div>
+      </div>
+      <div class="title-side">
+        <div class="side-mark">HC</div>
+        <div class="side-line"></div>
+        <div class="side-copy">A DARK PICTURES–STYLE<br />CINEMATIC EXPERIENCE</div>
+      </div>
+    </section>
+
+    <!-- chapter select -->
+    <section id="chapters-screen" class="screen hidden">
+      <div class="panel">
+        <div class="panel-kicker">REPLAY</div>
+        <h2>CHAPTERS</h2>
+        <p class="panel-sub">Return to a memory. Decisions made before this point are preserved in your current playthrough.</p>
+        <div id="chapter-list"></div>
+        <button class="panel-back" data-close="chapters-screen">BACK</button>
+      </div>
+    </section>
+
+    <!-- settings -->
+    <section id="settings-screen" class="screen hidden">
+      <div class="panel">
+        <div class="panel-kicker">OPTIONS</div>
+        <h2>SETTINGS</h2>
+        <div class="settings-list">
+          <label class="setting"><span>QTE ASSIST<small>Longer reaction windows</small></span><input type="checkbox" id="opt-qte" /></label>
+          <label class="setting"><span>REDUCE FLASHES<small>Softer lightning and strobes</small></span><input type="checkbox" id="opt-flash" /></label>
+          <label class="setting"><span>MUSIC &amp; AMBIENCE<small>Synthesized score and sound design</small></span><input type="checkbox" id="opt-audio" checked /></label>
+          <label class="setting"><span>FILM GRAIN<small>VHS-style texture</small></span><input type="checkbox" id="opt-grain" checked /></label>
+        </div>
+        <button class="panel-back" data-close="settings-screen">BACK</button>
+      </div>
+    </section>
+
+    <!-- pause -->
+    <section id="pause-screen" class="screen hidden">
+      <div class="pause-panel">
+        <div class="panel-kicker">PAUSED</div>
+        <h2>HOLD YOUR BREATH</h2>
+        <div class="pause-time" id="pause-time">3:06 AM</div>
+        <div class="pause-buttons">
+          <button id="btn-resume" class="menu-item primary"><em>01</em><span>RESUME</span></button>
+          <button id="btn-restart" class="menu-item"><em>02</em><span>RESTART CHAPTER</span></button>
+          <button id="btn-pause-settings" class="menu-item"><em>03</em><span>SETTINGS</span></button>
+          <button id="btn-quit" class="menu-item"><em>04</em><span>QUIT TO TITLE</span></button>
+        </div>
+        <div class="pause-decisions">
+          <div class="panel-kicker">YOUR STORY</div>
+          <div id="pause-flags"></div>
+        </div>
+        <div class="pause-foot">ESC TO RESUME</div>
+      </div>
+    </section>
+
+    <!-- ending -->
+    <section id="ending-screen" class="screen hidden">
+      <div class="ending-inner">
+        <div class="ending-kicker" id="ending-kicker">ENDING 1 OF 4</div>
+        <h2 id="ending-title">THE LAST SIGNAL</h2>
+        <div class="ending-rule"></div>
+        <p id="ending-text"></p>
+        <div id="ending-stats"></div>
+        <div class="ending-buttons">
+          <button id="btn-again" class="menu-item primary"><em>01</em><span>PLAY AGAIN</span></button>
+          <button id="btn-ending-chapters" class="menu-item"><em>02</em><span>CHAPTERS</span></button>
+          <button id="btn-ending-title" class="menu-item"><em>03</em><span>TITLE</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- loading -->
+    <div id="loading">
+      <div class="load-mark">HC</div>
+      <div class="load-title">THE HOLLOW CLOCK</div>
+      <div class="load-bar"><i id="load-fill"></i></div>
+      <div class="load-status" id="load-status">TUNING THE SIGNAL…</div>
+    </div>
+  </div>
+</body>
+</html>
